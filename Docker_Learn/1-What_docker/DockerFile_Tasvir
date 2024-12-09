@@ -1,0 +1,115 @@
+# ===========================
+# 1. Dockerfile nima va qanday ishlaydi?
+# ===========================
+# Dockerfile - bu oddiy matn fayli bo'lib, u konteyner yaratish uchun kerakli buyruqlarni o'z ichiga oladi.
+# Bu faylni `docker build` yordamida tasvirga aylantirib, konteynerlarni yaratishimiz mumkin.
+# Har bir buyruq tasvirning yangi qatlamini hosil qiladi.
+
+# ------------------------------
+# 2. Dockerfile Sintaksisi
+# ------------------------------
+# Quyidagi asosiy buyruqlar Dockerfile sintaksisida ishlatiladi:
+# - FROM: Bazaviy tasvirni aniqlaydi.
+# - RUN: Tasvirni yaratishda buyruqlarni bajaradi.
+# - COPY/ADD: Fayllarni konteynerga nusxalash uchun ishlatiladi.
+# - CMD: Konteyner ishga tushganda bajariladigan asosiy buyruqni aniqlaydi.
+
+# ------------------------------
+# Mavzuga oid namunaviy misollar
+# ------------------------------
+
+# =======================
+# FROM buyruqining misollari
+# =======================
+# Bazaviy tasvir sifatida Ubuntu-ni ishlatamiz
+FROM ubuntu:20.04
+# Fayl ichidagi izohlarni qoldirish uchun '#' belgisi ishlatiladi.
+
+# Tasvirni optimallashtirish uchun boshqa bazaviy tasvirlar:
+# FROM alpine:3.17      # Eng kichik Linux tarqatmalardan biri
+# FROM node:18          # Node.js va NPM bilan birga keladi
+# FROM python:3.10      # Python 3.10 o'rnatilgan tasvir
+
+# =======================
+# RUN buyruqining misollari
+# =======================
+# RUN - bu tasvir yaratilishida bajariladigan buyruqdir.
+# Misol: Ubuntu tizimida Python-ni o'rnatish.
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Ko'p bosqichli RUN buyruqlari:
+RUN mkdir /app && \
+    echo "print('Hello, Docker!')" > /app/main.py
+
+# =======================
+# COPY/ADD buyruqlarining misollari
+# =======================
+# COPY - Mahalliy faylni yoki papkani tasvirga nusxalash.
+# Misol: Hozirgi papkadagi barcha fayllarni `/app` katalogiga nusxalash.
+COPY . /app
+
+# ADD - URL dan fayllarni yuklash yoki fayllarni ochish imkonini beradi.
+# Misol: Tar faylni ochib nusxalash.
+ADD app.tar.gz /app
+
+# =======================
+# CMD buyruqining misollari
+# =======================
+# CMD - Konteyner ishga tushganda bajariladigan asosiy buyruq.
+# Misol: Python skriptni ishga tushirish.
+CMD ["python3", "/app/main.py"]
+
+# =======================
+# 3. Dockerfile Yozish va Tasvir Yaratish
+# =======================
+# Quyidagi qadamlar Dockerfile yordamida tasvir yaratish uchun kerak:
+# 1. Dockerfile yoziladi.
+# 2. `docker build -t my-image-name .` buyruq yordamida tasvir yaratiladi.
+# 3. Tasvir konteyner yaratish uchun ishlatiladi: `docker run my-image-name`.
+
+# Kengroq misol: Node.js ilovasi uchun Dockerfile
+FROM node:18
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8080
+CMD ["node", "server.js"]
+
+# =======================
+# 4. Mahalliy Tasvirlarni Boshqarish
+# =======================
+# Quyidagi buyruqlar mahalliy tasvirlar bilan ishlash uchun ishlatiladi:
+# 1. `docker images` - Mahalliy tasvirlar ro'yxatini ko'rish.
+# 2. `docker rmi image-id` - Mahalliy tasvirni o'chirish.
+# 3. `docker tag` - Tasvirni qayta nomlash.
+# 4. `docker save` va `docker load` - Tasvirlarni eksport/import qilish.
+
+# =======================
+# Amaliy mashqlar uchun qo'shimcha misollar:
+# =======================
+
+# Python asosida Flask ilovasi uchun Dockerfile
+FROM python:3.10
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python3", "app.py"]
+
+# Go ilovasi uchun Dockerfile
+FROM golang:1.19
+WORKDIR /go/src/app
+COPY . .
+RUN go build -o main .
+CMD ["./main"]
+
+# Docker tasvirni "slim" qilib yaratish uchun:
+FROM alpine:3.17
+RUN apk add --no-cache python3 py3-pip
+COPY . /app
+WORKDIR /app
+CMD ["python3", "main.py"]
+
+# =======================

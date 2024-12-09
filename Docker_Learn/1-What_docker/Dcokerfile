@@ -1,0 +1,207 @@
+# Dockerga Kirish va Asosiy Tushunchalar
+
+# 1.1. Docker nima va u nima uchun kerak?
+
+# Docker – bu konteynerlash texnologiyasiga asoslangan platforma bo'lib, dastur va uning barcha
+# bog'liqliklarini (kutubxonalar, tizim fayllari, va boshqa komponentlar) izolyatsiya qilingan konteynerlarga
+# joylashtirishni ta'minlaydi. Docker yordamida, dasturlarni oson va samarali tarzda yuklab olish,
+# tarqatish va boshqarish mumkin.
+
+# Misol: Dockerda Python ilovasini ishga tushirish
+
+# Dockerfile yaratish: Dockerfile faylida ilovangizni qanday ishlatish va qurish kerakligini ko'rsatishingiz mumkin.
+
+# Dockerfile misoli:
+"""
+FROM python:3.9-slim
+
+# Ishchi katalogni o'rnatamiz
+WORKDIR /app
+
+# Talab qilinadigan kutubxonalarni o'rnatamiz
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+# Ilovamizni konteynerga nusxalaymiz
+COPY . .
+
+# Python ilovasini ishga tushuramiz
+CMD ["python", "app.py"]
+"""
+
+# 1.2. Virtualizatsiya va konteynerlash o'rtasidagi farqlar
+
+# Virtualizatsiya va konteynerlash o'rtasidagi farq:
+# - Virtualizatsiya - bir nechta operatsion tizimlar (OS)ning xost tizimi ustida ishlashini ta'minlaydi.
+# - Konteynerlash esa ilovalarni, kutubxonalar va ularning barcha bog'liqliklarini bir xil OSni ishlatgan holda,
+#   alohida konteynerlarda izolyatsiya qilib ishlatish imkonini beradi.
+
+# Konteynerlar o'zining eng yirik afzalligi - ular juda yengil va tezkor, chunki ular xost tizimning yadrosidan
+# foydalanadi, ammo virtual mashinalar esa to'liq operatsion tizimni o'z ichiga oladi.
+
+# Misol:
+# Virtual mashina:
+# - Tizim: Ubuntu
+# - Yadro: Linux
+# - Tizimga o'rnatilgan barcha komponentlar (OS, RAM, CPU resurslari)
+
+# Docker konteyneri:
+# - Tizim: Ubuntu konteyneri
+# - Yadro: Linux (xost tizimi yadro)
+# - Yalpi resurslar: Xost tizimi resurslari
+
+# 1.3. Docker komponentlari:
+
+# Docker Engine:
+# Docker Engine – bu konteynerlarni yaratish, boshqarish va ularga ishlov berishni ta'minlaydigan asosiy
+# tarkibiy qismdir. Docker Engine quyidagi komponentlardan iborat:
+# - Docker Daemon (dockerd) - konteynerlarni boshqaradi va ularni ishga tushiradi.
+# - Docker CLI (Command Line Interface) - foydalanuvchidan buyruqlarni olish va Docker daemon bilan
+#   muloqot qilish uchun ishlatiladi.
+# - Docker API - Docker xizmatlarini avtomatlashtirish va boshqarish imkonini beradi.
+
+# Dockerda ishlash uchun oddiy komandalar:
+# 1. Docker imajini yaratish
+# docker build -t my-python-app .
+# 2. Docker konteynerini ishga tushirish
+# docker run -d -p 5000:5000 my-python-app
+
+# Docker CLI:
+# Docker CLI (Command Line Interface) – Docker komandalari va buyruqlarini bajarish uchun ishlatiladigan
+# terminal interfeysidir. Docker CLI yordamida Docker imajlarini yaratish, ularni yuklab olish,
+# konteynerlarni ishga tushirish va boshqarish mumkin.
+
+# Docker CLI yordamida o'zgarishlarni amalga oshirish:
+# Misol: Docker konteynerini ishga tushirish
+"""
+$ docker run -d --name my-container -p 8080:80 nginx
+"""
+
+# Misol: Docker imajini yaratish
+"""
+$ docker build -t my-python-app .
+"""
+
+# Docker Hub:
+# Docker Hub – bu Docker imajalarini saqlash uchun mo'ljallangan onlayn platformadir. Siz Docker Hub
+# orqali o'zingizning imajalaringizni yuklashingiz va boshqalar tomonidan tayyorlangan imajalarni yuklab
+# olish imkoniyatiga egasiz.
+
+# Docker Hub’dan imajani olish:
+"""
+$ docker pull python:3.9-slim
+"""
+
+# Docker Hub’ga o'z imajamizni push qilish:
+"""
+$ docker tag my-python-app your-username/my-python-app
+$ docker push your-username/my-python-app
+"""
+
+# Quyidagi namuna Docker CLI yordamida bajarilishi mumkin bo'lgan komandalarning ba'zi misollarini taqdim etadi:
+# - Docker imajini ko'rish
+"""
+$ docker images
+"""
+
+# - Docker konteynerlarini ko'rish
+"""
+$ docker ps
+"""
+
+# - Docker konteynerini to'xtatish
+"""
+$ docker stop my-container
+"""
+
+# - Docker konteynerini o'chirish
+"""
+$ docker rm my-container
+"""
+
+# **Qo'shimcha Holatlar:**
+
+# 1. Docker konteynerini boshqa tizimga ko'chirish:
+# Agar siz Docker konteynerini boshqa bir tizimga ko'chirishni istasangiz, Docker imajini eksport
+# qilish va import qilish mumkin:
+"""
+$ docker save -o my-python-app.tar my-python-app
+$ docker load -i my-python-app.tar
+"""
+
+# 2. Docker Compose bilan bir nechta konteynerlarni boshqarish:
+# Docker Compose yordamida bir nechta konteynerlarni boshqarish mumkin. Misol:
+"""
+version: '3'
+services:
+  web:
+    image: nginx
+    ports:
+      - "8080:80"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: example
+"""
+
+# 3. Docker konteynerida ma'lumotlar bazasini ishga tushirish:
+# Misol uchun, PostgreSQL ni Docker konteynerida ishga tushirish:
+"""
+$ docker run --name postgres-container -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+"""
+
+# 4. Docker konteynerlarida loglarni ko'rish:
+# Docker konteynerida loglarni ko'rish uchun quyidagi buyruqni ishlatish mumkin:
+"""
+$ docker logs my-container
+"""
+
+# 5. Docker imajasi va konteynerini tozalash:
+# Keraksiz Docker imajalari va konteynerlarni tozalash uchun quyidagi buyruqlarni ishlatish mumkin:
+"""
+$ docker system prune -a
+"""
+
+# 6. Docker konteynerini qayta ishga tushirish:
+# Docker konteynerini to'xtatish va qayta ishga tushirish uchun quyidagi buyruqni ishlatish mumkin:
+"""
+$ docker restart my-container
+"""
+
+# 7. Docker konteynerida tarmoqni sozlash:
+# Docker konteynerlariga tarmoqni sozlash uchun `docker network` komandasi ishlatiladi:
+"""
+$ docker network create my-network
+$ docker run --name container1 --network my-network my-image
+"""
+
+# 8. Docker konteynerida fayl tizimini ko'rish:
+# Docker konteynerining ichki fayl tizimini ko'rish uchun `docker exec` komandasidan foydalanishingiz mumkin:
+"""
+$ docker exec -it my-container bash
+"""
+
+# 9. Docker konteynerining resurslarini sozlash:
+# Docker konteynerining ishlash resurslarini (CPU, RAM) cheklash:
+"""
+$ docker run -d --name my-container --memory="512m" --cpus="1.0" my-image
+"""
+
+# 10. Docker va Kubernetes bilan konteynerlarni boshqarish:
+# Kubernetes yordamida bir nechta konteynerlarni klasterda boshqarish mumkin. Docker va Kubernetes birgalikda
+# ishlatilishi mumkin, bu sizga konteynerlarni tarqatishda qulaylik yaratadi.
+
+# 11. Docker konteynerini tugatishdan oldin ma'lumotlarni saqlash:
+# Agar konteynerni to'xtatmoqchi bo'lsangiz, avval ma'lumotlarni tashqi diskka saqlang:
+"""
+$ docker cp my-container:/data /host/path
+"""
+
+# 12. Docker container va imajlarini tahlil qilish:
+# Docker imajalari va konteynerlarini tekshirish va tahlil qilish uchun `docker inspect` komandasi ishlatiladi:
+"""
+$ docker inspect my-container
+"""
+
+# Endi, yuqoridagi misollar va tushuntirishlar yordamida siz Dockerga kirish va uning asosiy komponentlari haqida mukammal dars o'tishingiz mumkin.

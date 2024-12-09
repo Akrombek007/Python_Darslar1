@@ -1,0 +1,152 @@
+# 1. Dockerfile - Windows uchun Docker Networking
+# Ushbu Dockerfile Windows muhitida Docker konteynerlari bilan tarmoqni sozlash va ularga aloqalar o'rnatish bo'yicha mashg'ulotni o'z ichiga oladi.
+
+# 2. Docker o'rnatish:
+# Windowsda Docker Desktop o'rnatilgan bo'lishi kerak.
+# Docker Desktopni https://www.docker.com/products/docker-desktop/ manzilidan yuklab olish mumkin.
+
+# Dockerfile yaratish uchun ushbu kodi o'qing va Docker Desktopni ishga tushiring.
+
+# 3. Dockerfile boshlanishi
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+LABEL maintainer="your_name@domain.com"
+LABEL version="1.0"
+LABEL description="Docker Networking Tutorial for Windows"
+
+# 4. Dockerfile orqali kerakli dasturlarni o'rnatish
+RUN powershell -Command \
+    Install-WindowsFeature -Name Web-Server
+
+# 5. Docker Tarmoqlari haqida asosiy tushunchalar
+# Dockerda 3 ta asosiy tarmoq turi mavjud: bridge, host, none
+
+# 6. 8.1. Docker Tarmoqlari - bridge, host, none
+
+# 6.1. Bridge tarmog'i - bu konteynerlarga virtual tarmoq beradi, ularning bir-biri bilan va host bilan bog'lanishiga imkon beradi.
+
+# 6.2. Host tarmog'i - konteynerni to'g'ridan-to'g'ri host tizimi tarmog'iga ulashadi, bu shuni anglatadiki, konteyner host tizimi IP manzilini to'g'ridan-to'g'ri ishlatadi.
+
+# 6.3. None tarmog'i - konteynerni tarmoqdan butunlay ajratib qo'yadi, ya'ni uning tarmoq resurslari yo'q.
+
+# 7. Docker containerlar o'rtasida tarmoq aloqasi
+
+# 8.2. Konteynerlar o'rtasida tarmoq aloqasi o'rnatish (--network)
+
+# 8.2.1. Docker konteynerlarini o'rtasida tarmoq aloqasini o'rnatish uchun --network flagni ishlatishingiz mumkin.
+
+# Docker konteynerlarini umumiy tarmoqda ishlatish:
+# Quyidagi misolda ikki konteynerni birlashtirish va o'zaro aloqasini o'rnatish:
+
+# Dockerfile: bridge tarmog'ida ikki konteynerni o'rnatish
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+RUN powershell -Command \
+    Install-WindowsFeature -Name Web-Server
+
+# Konteynerni `bridge` tarmog'ida ishga tushurish:
+# docker run --name container1 --network bridge -d my_image
+# docker run --name container2 --network bridge -d my_image
+
+# Konteynerlar bir-birini taniyadi, va ular orasida IP aloqasi o'rnatilishi mumkin.
+
+# 8.2.2. `--network host` - tarmoqni to'g'ridan-to'g'ri hostga ulash:
+# Bu usulda konteyner host tizimi IP manzilini to'g'ridan-to'g'ri ishlatadi va barcha tarmoq aloqalarini o'sha manzil orqali amalga oshiradi.
+
+# docker run --name container1 --network host -d my_image
+
+# 8.2.3. `--network none` - tarmoqdan izolyatsiya qilish:
+# Ushbu holatda konteynerlar tarmoqdan ajratilgan bo'ladi va ular orasida aloqalar yo'q bo'ladi.
+# docker run --name container1 --network none -d my_image
+
+# 8.3. O'z tarmog'ingizni yaratish va boshqarish
+
+# 8.3.1. Dockerda o'z tarmog'ingizni yaratish uchun `docker network create` komandasini ishlatishingiz mumkin.
+
+# Docker tarmog'ini yaratish:
+# docker network create --driver bridge my_network
+
+# 8.3.2. Docker tarmog'ini yaratganingizdan so'ng, konteynerlarni o'sha tarmoqda ishga tushirishingiz mumkin.
+
+# docker run --name container1 --network my_network -d my_image
+# docker run --name container2 --network my_network -d my_image
+
+# 8.3.3. Tarmoq turlarini boshqarish va sozlash:
+# Docker tarmog'ini boshqarish uchun ba'zi asosiy komandalar:
+
+# Tarmoqni ko'rish:
+# docker network ls
+
+# Tarmoq haqidagi ma'lumotlarni olish:
+# docker network inspect my_network
+
+# Tarmoqni o'chirish:
+# docker network rm my_network
+
+# 9. Docker Tarmoqni boshqarish va sozlash:
+# Docker tarmog'ini to'g'ri sozlash uchun ba'zi muhim parametrlar:
+
+# 9.1. `--subnet` - maxsus IP manzil tarmog'ini yaratish:
+# docker network create --driver bridge --subnet=192.168.1.0/24 my_custom_network
+
+# 9.2. `--gateway` - tarmoq uchun maxsus gateway o'rnatish:
+# docker network create --driver bridge --gateway=192.168.1.1 my_custom_network
+
+# 9.3. Tarmoqni tashkil etish va sozlash:
+# Docker tarmog'ini sozlashda ba'zi usullarni ko'rib chiqamiz:
+# - Tarmoqni maxsus portlar bilan ulash
+# - Tarmoqni bir nechta konteynerlar bilan ishlatish
+# - Xavfsizlikni sozlash (masalan, konteynerlar o'rtasida aloqani cheklash)
+
+# 10. Docker tarmog'ida xavfsizlik
+
+# Docker tarmog'ini sozlashda xavfsizlikni ta'minlash:
+# - Tarmoqga kirishlarni cheklash
+# - Konteynerlar orasida tarmoqni ajratish
+# - Xavfsizlik devorlarini o'rnatish
+
+# 11. Docker containerlarini tarmoq orqali boshqarish
+
+# 11.1. Docker konteynerlarini o'zaro muloqotga kiritish:
+# Konteynerlar o'rtasida aloqani o'rnatish, agar ular bir tarmoqda bo'lsa:
+# docker exec container1 ping container2
+
+# 12. Docker Compose bilan tarmoqni boshqarish
+
+# 12.1. Docker Compose orqali ko'p konteynerlar bilan ishlash:
+# docker-compose.yml faylini yaratib, bir nechta konteynerlarni bir tarmoqda ishga tushirish.
+#
+# docker-compose.yml misoli:
+# version: '3'
+# services:
+#   web:
+#     image: my_web_image
+#     networks:
+#       - my_network
+#   db:
+#     image: my_db_image
+#     networks:
+#       - my_network
+# networks:
+#   my_network:
+
+# 13. Docker tarmog'ini tahlil qilish va debugging
+# Docker tarmog'ini tahlil qilishda, `docker network inspect` va `docker logs` kabi komandalar yordamida muammolarni aniqlash mumkin.
+
+# 14. Docker tarmog'ini to'liq tushunish va undan samarali foydalanish
+
+# Dockerda tarmoqni yaxshilash va tarmoqni to'g'ri ishlatish uchun qo'llanmalarga va amaliyotlarga rioya qiling.
+
+# 15. Yakuniy Testlar
+
+# Dockerda tarmoqni to'g'ri sozlash va ishlatishda, yuqoridagi kodlar orqali amaliyotlar qilish mumkin.
+# Dockerfile yordamida barcha zaruriy xususiyatlarni o'rganing va amaliyotlarni bajarish.
+
+# 16. Docker Networking haqida yakuniy tavsiyalar
+# Dockerda tarmoqni boshqarish va sozlashni yaxshi o'zlashtiring, maxsus tarmoq yaratish va konteynerlar orasidagi aloqalarni o'rnatish sizni keyingi loyiha uchun tayyor qiladi
+
+# Izohlar:
+# Docker tarmoq turlari: bridge, host, none - tarmoqni sozlash uchun kerakli variantlar.
+# Tarmoq yaratish va boshqarish: docker network create komandasini ishlatish orqali o‘z tarmog‘ingizni yaratishingiz mumkin.
+# Docker Compose bilan ishlash: Bir nechta konteynerni tarmoqda birlashtirish va o‘zgartirishlar kiritish.
+# Tarmoqdagi xavfsizlik: Xavfsizlik devorlari va portlarni cheklash tarmoqni boshqarishda yordam beradi.

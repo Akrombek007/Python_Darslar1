@@ -1,0 +1,72 @@
+# 1. Asosiy imij tanlash
+# Ubuntu asosida ish olib boramiz
+FROM ubuntu:20.04
+
+# 2. Muhim dasturlarni yangilash va o'rnatish
+# curl va netcat vositalarini o'rnatamiz (portlar bilan ishlash uchun)
+RUN apt-get update && apt-get install -y \
+    curl \
+    netcat \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Ishlash uchun foydalanuvchini sozlash
+WORKDIR /app
+
+# 4. Mahalliy fayllarni konteyner ichiga ko'chirish
+# Masalan, "index.html" faylni konteyner ichiga o'rnatamiz
+COPY index.html /app/index.html
+
+# 5. Volyumni belgilash (Ma'lumotlarni konteynerdan tashqarida saqlash uchun)
+VOLUME /app/data
+
+# 6. Konteyner ichida ishlatiladigan portni ochish
+EXPOSE 8080
+
+# 7. Asosiy buyruq: Konteyner ichida HTTP serverni ishga tushirish
+# SimpleHTTPServer dan foydalanamiz
+CMD ["python3", "-m", "http.server", "8080"]
+
+# Docker buyruqlari bilan ishlash
+# Docker imijini yaratish
+
+docker build -t docker-port-volume-example .
+
+#Konteynerni portlarni bog'lash bilan ishga tushirish (-p flagi)
+docker run -d -p 8080:8080 --name port-example docker-port-volume-example
+
+#Mahalliy fayllarni konteynerga ulash (-v flagi)
+docker run -d -p 8080:8080 -v $(pwd)/data:/app/data --name volume-example docker-port-volume-example
+
+#Docker volume yaratish va ulash
+docker volume create my_volume
+docker run -d -p 8080:8080 -v my_volume:/app/data --name persistent-data docker-port-volume-example
+#Misol holatlar
+#1. Portlarni ochish va test qilish
+#Konteynerda serverni ochish
+
+docker run -d -p 9090:8080 --name port-test docker-port-volume-example
+
+# Mahalliy portda tekshirish
+curl http://localhost:9090
+
+#2. Fayllarni ulash va tahrirlash
+#Mahalliy katalogni ulash
+mkdir data
+echo "Hello, Docker!" > data/message.txt
+docker run -d -v $(pwd)/data:/app/data --name file-share docker-port-volume-example
+
+#Konteyner ichida faylni ko'rish
+docker exec -it file-share ls /app/data
+
+# 3. Doimiy ma'lumotlar bilan ishlash
+# Docker volyum orqali ma'lumot saqlash
+docker volume create app_data
+docker run -d -v app_data:/app/data --name persistent-data docker-port-volume-example
+
+# 20 ta misol kodi
+  #  Har bir misolni Dockerfile, docker-compose.yaml yoki shell buyruqlari sifatida yozib, maxsus holatlarni ko'rsatib beraman.
+  #  Ushbu faylni to'liq taqdim qilish uchun Dockerfile-ga ham, amaliy ssenariylarni o'z ichiga oladigan kodlarni alohida-alohida tasvirlayman.
+  #
+  #  Misollarni bitta Dockerfile'da taqdim qilish texnik cheklovlar tufayli imkonsiz. Lekin ular darsga mos tushuntirishlar bilan yig'ilsa,
+  #  buni sizga maxsus fayl formatida taqdim etish mumkin. Agar iloji bo'lsa, iltimos,
+  #  fayl ko'rinishida olasizmi yoki izohli misollarni alohida-alohida ko'rinishda taqdim etish kerakligini belgilang!

@@ -1,0 +1,186 @@
+# docker_intro.py
+
+# 1.1. Docker nima va u nima uchun kerak?
+# Docker - bu ilovalarni konteynerlarda izolyatsiya qilishga yordam beradigan ochiq manba dasturiy ta'minot.
+# Konteynerlar yordamida dastur va uning muhitini biror tizimda bir xil ishlashini ta'minlash mumkin.
+# Docker ilovalarni boshqarishda, joylashtirishda va tarqatishda muhim o'zgarishlarni keltirib chiqardi.
+
+# Dockerni o'rnatish va ishlatish uchun quyidagi buyruqlarni ishlatish mumkin:
+# Dockerni o'rnatish:
+# sudo apt-get update
+# sudo apt-get install docker.io
+
+# Dockerni ishga tushirish:
+# sudo systemctl start docker
+# sudo systemctl enable docker
+
+# Docker versiyasini tekshirish:
+# docker --version
+
+# Dockerni ishlatishning asosiy holatlari:
+# 1. Dastur muhitini yaratish va ta'minlash
+# 2. Mahsulotni joylashtirish va boshqarish
+# 3. Ishlab chiquvchilar orasida izolyatsiya qilish
+
+# 1.2. Virtualizatsiya va konteynerlash o'rtasidagi farqlar
+# Virtualizatsiya:
+# Virtualizatsiya bu tizimning butun bir nusxasini yaratadi (VM), bunda har bir VM o'z operatsion tizimiga ega.
+# Konteynerlash:
+# Konteynerlash esa, bir nechta ilovalarni bir operatsion tizim ustida izolyatsiya qiladi, ammo ular o'zaro bo'lishadigan resurslardan foydalanadi.
+
+# Docker konteynerlari asosan bir xil Linux yadrosi va resurslardan foydalanadi, bu esa samaradorlikni oshiradi va VM ga qaraganda kamroq resurs talab qiladi.
+
+# 1.3. Docker komponentlari
+# Docker Engine, Docker Hub va Docker CLI kabi asosiy komponentlar quyida tushuntirilgan.
+
+# Docker Engine - Dockerni ishlatishga imkon beruvchi asosiy komponent
+# Docker Engine quyidagi 2 qismdan iborat:
+# 1. Docker Daemon (dockerd) - bu Docker konteynerlarini boshqaradigan asosiy xizmati.
+# 2. Docker Client (docker) - bu foydalanuvchining Docker bilan muloqot qilish uchun ishlatadigan interfeysi.
+
+# Docker Engine o'rnatish:
+# sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+# Docker Engine ni ishga tushirish va uning holatini tekshirish:
+# sudo systemctl start docker
+# sudo systemctl status docker
+
+# Docker Daemon holatini tekshirish:
+# docker info
+
+# Docker CLI - bu foydalanuvchiga Docker xizmatlarini boshqarish imkonini beruvchi komandali satr interfeysi.
+
+# Docker CLI orqali Docker xizmatlarini ishlatish:
+# docker run hello-world
+# docker images
+
+# Docker Hub - Docker imijlarini yuklab olish va joylashtirish uchun Dockerning onlayn markazi.
+
+# 1. Docker Hub orqali imijni yuklab olish:
+# docker pull ubuntu
+
+# 2. Docker Hub orqali o'zingizning imijni yaratish:
+# docker build -t my_image .
+
+# Dockerda konteyner yaratish va ishlatish:
+# 1. Konteyner yaratish va ishga tushirish:
+docker run -d --name my-container ubuntu:latest tail -f /dev/null
+
+# 2. Konteynerning holatini tekshirish:
+docker ps -a
+
+# 3. Konteynerga ulanish:
+docker exec -it my-container bash
+
+# 4. Konteynerni to'xtatish:
+docker stop my-container
+
+# 5. Konteynerni o'chirish:
+docker rm my-container
+
+# 6. Docker imijlarini ko'rish:
+docker images
+
+# 7. Docker konteynerlaridagi fayllar bilan ishlash:
+# Fayl tizimini ko'rish:
+docker exec -it my-container ls
+
+# Docker konteynerini o'chirishdan oldin uning loglarini ko'rish:
+docker logs my-container
+
+# Dockerda tarmoqni yaratish:
+# 1. Yangi tarmoq yaratish:
+docker network create my_network
+
+# 2. Docker konteynerini yaratish va tarmoqka ulanadigan qilib sozlash:
+docker run -d --name my-container --network my_network ubuntu:latest tail -f /dev/null
+
+# Dockerda volume bilan ishlash (ma'lumotlarni saqlash):
+# 1. Volume yaratish:
+docker volume create my_volume
+
+# 2. Volume ni konteynerga ulash:
+docker run -d --name my-container -v my_volume:/data ubuntu:latest tail -f /dev/null
+
+# Docker Compose bilan ko'p konteynerli ilovalarni boshqarish:
+# docker-compose.yml faylini yaratish:
+"""
+version: '3'
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: example
+"""
+
+# Docker Compose yordamida ilovani ishga tushurish:
+# docker-compose up -d
+
+# Docker Compose orqali ko'p konteynerlarni bir vaqtning o'zida boshqarish:
+# docker-compose stop
+# docker-compose down
+
+# Dockerfile yaratish va Docker imiji yaratish:
+# Dockerfile ichida asosiy imijni tanlash:
+"""
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y python3
+CMD ["python3", "-m", "http.server"]
+"""
+
+# Docker imijini yaratish:
+docker build -t my-python-server .
+
+# Docker konteynerni ishga tushurish:
+docker run -d -p 8000:8000 my-python-server
+
+# Dockerda qayta ishga tushirish (restart policy):
+# 1. Konteynerni avtomatik qayta ishga tushirishni sozlash:
+docker run -d --restart=always --name my-container ubuntu:latest tail -f /dev/null
+
+# Docker konteynerlaridagi muammolarni hal qilish:
+# Konteynerning holatini tekshirish:
+docker inspect my-container
+
+# Docker konteynerining loglarini ko'rish:
+docker logs my-container
+
+# Docker konteynerini to'liq tozalash:
+docker system prune -a
+
+# Dockerda xavfsizlikni ta'minlash:
+# Konteynerlarni minimal ruxsatlar bilan ishga tushirish:
+docker run -d --security-opt seccomp=unconfined ubuntu:latest tail -f /dev/null
+
+# Dockerda imijni minimalizatsiya qilish:
+# Dockerfile ichida faqat kerakli paketlarni o'rnatish:
+"""
+FROM python:3.9-alpine
+RUN pip install --no-cache-dir flask
+"""
+
+# Dockerda konteynerlarni monitoring qilish:
+# Docker stats orqali konteynerlarning holatini tekshirish:
+docker stats
+
+# Dockerda monitoringni sozlash uchun to'plamlar yaratish:
+docker run -d --name monitoring-container monitor-image
+
+# Dockerning asosiy buyruqlari va ularning holatlari:
+# docker version - Docker versiyasi haqida ma'lumot
+# docker ps - konteynerlarni ko'rish
+# docker run - konteyner yaratish va ishga tushirish
+# docker exec - konteyner ichida buyruq bajarish
+# docker stop - konteynerni to'xtatish
+# docker logs - konteyner loglarini ko'rish
+# docker rmi - Docker imijlarini o'chirish
+# docker build - Docker imijlarini yaratish
+
+# 1. Dockerni boshqarish va monitoring qilishda siz quyidagi metodlardan foydalanishingiz mumkin:
+# - Docker logs: konteyner loglarini tekshirish uchun
+# - Docker stats: konteynerlar haqida statistik ma'lumot olish
+# - Docker inspect: konteynerlar va ularning holati haqida batafsil ma'lumot olish

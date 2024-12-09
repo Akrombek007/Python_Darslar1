@@ -1,0 +1,15 @@
+# Python rasmni tanlash
+FROM python:3.8-slim
+
+# Ishchi katalogni yaratish
+WORKDIR /app
+
+# Talab qilingan kutubxonalarni o‘rnatish
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Python ilovasini nusxalash
+COPY . .
+
+# Dastur ishlash uchun buyruq
+CMD ["python", "app.py"]

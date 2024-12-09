@@ -1,0 +1,92 @@
+# ============================
+# Docker Konteynerlari Qo'llanmasi
+# ============================
+
+# 1. Docker konteynerlari nima va ular qanday ishlaydi?
+# Docker konteynerlari ilovalarni va ularning barcha kerakli kutubxonalarini bir joyda paketlash imkonini beradi.
+# Bu ilovalarni izolyatsiya qilingan muhitda ishlatishga imkon yaratadi.
+# Bu faylda biz turli xil Docker konteyner amaliyotlarini ko'rib chiqamiz.
+
+# --- Mavzu: Docker konteynerlari bilan ishlash ---
+
+# 2. Docker konteynerini yaratish va ishga tushirish
+# `docker run` buyrug'i konteynerni ishga tushirish uchun ishlatiladi.
+
+# ***Misol 1: Minimal Linux konteynerini ishga tushirish***
+# Bu buyruq minimal Ubuntu konteynerini ishga tushiradi va bash terminalga kiradi.
+RUN echo "# docker run -it ubuntu:latest bash" > 01_run_ubuntu.sh
+
+# ***Misol 2: Hello World konteynerini ishga tushirish***
+# `hello-world` konteyneri Docker to'g'ri o'rnatilganligini tasdiqlaydi.
+RUN echo "# docker run hello-world" > 02_run_hello_world.sh
+
+# ***Misol 3: Windows konteynerni ishga tushirish***
+# Windows Server Core asosida konteyner yaratamiz.
+RUN echo "# docker run -it mcr.microsoft.com/windows/servercore:ltsc2022" > 03_run_windows.sh
+
+# 3. Faol va to'xtatilgan konteynerlarni ko'rish
+# `docker ps` konteynerlarni ko'rish uchun ishlatiladi.
+
+# ***Misol 4: Faol konteynerlarni ko'rish***
+RUN echo "# docker ps" > 04_active_containers.sh
+
+# ***Misol 5: To'liq konteyner ro'yxatini ko'rish***
+# `docker ps -a` buyruq to'xtatilgan va o'chirilgan konteynerlarni ham ko'rsatadi.
+RUN echo "# docker ps -a" > 05_all_containers.sh
+
+# 4. Konteynerni to'xtatish va o'chirish
+# `docker stop` va `docker rm` buyruqlari konteynerlarni boshqaradi.
+
+# ***Misol 6: Konteynerni to'xtatish***
+# Faol konteynerni o'z ID yoki nomi orqali to'xtatish.
+RUN echo "# docker stop <container_id>" > 06_stop_container.sh
+
+# ***Misol 7: Konteynerni o'chirish***
+# To'xtatilgan konteynerni o'chirish.
+RUN echo "# docker rm <container_id>" > 07_remove_container.sh
+
+# ***Misol 8: Faol konteynerni to'g'ridan-to'g'ri o'chirish***
+# Agar konteyner ishlayotgan bo'lsa, uni to'xtatish va o'chirishni birlashtirish.
+RUN echo "# docker rm -f <container_id>" > 08_force_remove.sh
+
+# ***Misol 9: Bir nechta konteynerni bir vaqtning o'zida o'chirish***
+RUN echo "# docker rm \$(docker ps -aq)" > 09_remove_all.sh
+
+# 5. Amaliy Holatlar
+# Quyidagi bo'limda konteynerlar bilan ishlashga oid real foydalanish misollari keltiriladi.
+
+# ***Misol 10: Apache web-server konteynerini ishga tushirish***
+RUN echo "# docker run -d -p 80:80 httpd" > 10_apache_server.sh
+
+# ***Misol 11: MySQL konteynerini yaratish***
+RUN echo "# docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -d mysql:latest" > 11_mysql_container.sh
+
+# ***Misol 12: Konteyner ichiga kirish va ishlash***
+RUN echo "# docker exec -it <container_id> bash" > 12_exec_container.sh
+
+# ***Misol 13: Konteyner ichidagi fayllarni ko'rish***
+RUN echo "# docker container inspect <container_id>" > 13_inspect_container.sh
+
+# ***Misol 14: Konteyner loglarini ko'rish***
+RUN echo "# docker logs <container_id>" > 14_view_logs.sh
+
+# ***Misol 15: Konteynerdan fayl chiqarish***
+RUN echo "# docker cp <container_id>:/path/to/file ./localpath" > 15_copy_from_container.sh
+
+# ***Misol 16: Faylni konteynerga joylash***
+RUN echo "# docker cp ./localfile <container_id>:/path/to/destination" > 16_copy_to_container.sh
+
+# ***Misol 17: Konteynerdan rasm yaratish***
+RUN echo "# docker commit <container_id> my_custom_image" > 17_commit_container.sh
+
+# ***Misol 18: Konteynerni qayta ishga tushirish***
+RUN echo "# docker restart <container_id>" > 18_restart_container.sh
+
+# ***Misol 19: Yangi konteynerni Dockerfile dan yaratish***
+RUN echo "# docker build -t my_image ." > 19_build_image.sh
+
+# ***Misol 20: Konteyner asosida yangi obraz yaratish***
+RUN echo "# docker save my_image > my_image.tar" > 20_save_image.sh
+
+# Dockerfile oxiri
+# Ushbu fayldagi har bir buyruq Windows terminalda bajarilishi uchun moslashgan.

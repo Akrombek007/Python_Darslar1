@@ -1,0 +1,65 @@
+Docker Compose - bu bir nechta konteynerni boshqarishni va ularga birgalikda xizmat ko‘rsatishni osonlashtiruvchi vositadir.
+Docker Compose yordamida bir necha konteynerlar bir-biriga bog‘langan holda ishlashini tashkil etish mumkin.
+Docker Compose yml faylini yaratish va konteynerlarni boshqarish orqali ko‘p konteynerli ilovalar tezda ishlab chiqiladi.
+
+7.1. Docker Compose nima?
+Docker Compose - bu bir nechta konteynerlardan iborat bo‘lgan ilovalarni boshqarish va osonlashtirish uchun ishlatiladigan vosita.
+ Ko‘p konteynerli ilovalarni yaratishda har bir konteyner o‘zining xizmatini ko‘rsatadi va boshqa konteynerlar bilan o‘zaro aloqa qiladi.
+ Docker Compose yordamida barcha konteynerlarni bitta fayl orqali boshqarishingiz mumkin.
+
+Docker Compose yordamida ilova sozlamalarini bir joyda belgilab, barcha konteynerlarni birgalikda ishga tushirishingiz,
+to‘xtatishingiz va ularga xizmat ko‘rsatishingiz mumkin.
+
+7.2. Docker Compose sintaksisi (docker-compose.yml)
+Docker Compose fayli (docker-compose.yml) YAML formatida yoziladi va bir nechta xususiyatlardan iborat bo‘ladi.
+Faylda quyidagi parametrlar bo‘lishi mumkin:
+
+version: Compose fayl formatining versiyasi
+services: Har bir konteynerning nomi va konfiguratsiyasi
+volumes: Fayl tizimi uchun hajmlar
+networks: Konteynerlar o‘rtasida tarmoq ulanishlari
+Izohlar:
+
+version: '3.8': Docker Compose fayli formatining versiyasi
+services: Konteynerlar ro‘yxati. Har bir konteyner o‘zining xususiyatlariga ega bo‘ladi.
+web konteyneri: nginx dasturi bilan ishlaydigan konteyner. Ushbu konteyner 80 portini ochadi.
+db konteyneri: MySQL 5.7 versiyasini ishlatadi va MYSQL_ROOT_PASSWORD orqali ma'lumotlar bazasi parolini sozlaydi.
+networks: Konteynerlarni tarmoqda bog‘lash. webnet nomli tarmoqda konteynerlar bog‘lanadi.
+volumes: Doimiy ma'lumotlarni saqlash uchun hajmlar. db_data hajmi MySQL ma'lumotlar bazasi fayllari uchun saqlanadi.
+Bir nechta konteynerli ilovani ishga tushirish (docker-compose up)
+Docker Compose yordamida bir nechta konteynerni bir vaqtda ishga tushurish uchun quyidagi buyruqdan foydalaniladi:
+docker-compose up
+Bu buyruq quyidagi ishlarni amalga oshiradi:
+
+Docker Compose faylini o‘qib, barcha konteynerlarni ishga tushiradi.
+Agar konteynerlar hali o‘rnatilmagan bo‘lsa, kerakli tasvirlarni yuklab oladi.
+Konteynerlar o‘rnatilgach, ular avtomatik ravishda ishga tushadi.
+Izohlar:
+
+Agar konteynerlarni fon rejimida ishga tushirishni xohlasangiz, quyidagi buyruqdan foydalaning:
+docker-compose up -d
+
+Agar docker-compose.yml faylini o‘zgartirgan bo‘lsangiz va o‘zgarishlarni qo‘llamoqchi bo‘lsangiz, quyidagi buyruqni ishlating:
+docker-compose up -d --build
+
+Compose yordamida konteynerlarni boshqarish (docker-compose down, docker-compose logs)
+Konteynerlarni to‘xtatish va o‘chirish (docker-compose down)
+docker-compose down
+
+Bu buyruq barcha konteynerlarni to‘xtatadi va ularga aloqador barcha resurslarni (tarmoqlar, hajmlar) o‘chiradi.
+Agar faqat konteynerlarni to‘xtatmoqchi bo‘lsangiz, quyidagicha buyruqdan foydalanishingiz mumkin:
+docker-compose stop
+
+Konteynerlar loglarini ko‘rish (docker-compose logs)
+docker-compose logs
+
+Bu buyruq konteynerlar uchun log fayllarini ko‘rsatadi.
+Agar faqat bir konteynerning loglarini ko‘rmoqchi bo‘lsangiz, quyidagicha buyruqdan foydalaning:
+docker-compose logs web
+Izohlar:
+
+logs -f: Log fayllarini real vaqt rejimida ko‘rish uchun foydalaniladi.
+Dockerfile WINDOWS uchun namunalar
+Dockerfile yaratish uchun Windows tizimida ham osonlikcha konteynerlarni yaratish mumkin. Quyidagi misollarni ko‘rib chiqing.
+
+1. Python ilovasi uchun Dockerfile (Windows)

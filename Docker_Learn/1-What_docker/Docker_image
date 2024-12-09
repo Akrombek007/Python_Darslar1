@@ -1,0 +1,115 @@
+# --- Docker Images Dars Qo'llanmasi --- #
+# Ushbu Dockerfile Docker tasvirlari (images) bilan ishlashni tushuntirish uchun misollar va amaliyotlarni o'z ichiga oladi.
+# Mavzular: Tasvirlarni tushuntirish, yuklab olish, boshqarish va o'chirish.
+# Ko'plab izohlar va tushuntirishlar kiritilgan.
+
+# Bo'lim 1: Docker Tasviri nima? (3.1)
+# Tasvir bu ilova va uning bog'liq bo'lgan hamma narsalari saqlanadigan joy.
+# Quyidagi oddiy tasvir bilan boshlaymiz:
+
+# 1. Ubuntu bazaviy tasviridan foydalanib yangi tasvir yaratamiz.
+FROM ubuntu:20.04
+# Tasvir haqida izoh (metadata) qo'shamiz
+LABEL maintainer="Your Name <your_email@example.com>"
+LABEL description="Bu tasvir Ubuntu 20.04 bazasiga asoslangan."
+LABEL version="1.0"
+
+# Tasvirda ba'zi buyruqlarni bajarib ko'ramiz.
+RUN apt-get update && apt-get install -y curl
+RUN echo "Bu tasvirning maqsadi: Docker Images darsiga misol."
+
+# Bo'lim 2: Docker Hub dan Tasvirlarni Yuklab Olish (3.2)
+# Quyidagi misollar Docker Hub bilan ishlashni tushuntiradi.
+
+# 2. Tasvirni yuklash uchun ishlatiladigan buyruq
+# $ docker pull ubuntu:20.04
+# Yuklangan tasvirni ko'rish uchun:
+# $ docker images
+
+# 3. Rasmning oxirgi versiyasini yuklash
+# $ docker pull nginx
+
+# Bo'lim 3: Tasvirlarni Ko'rish va Boshqarish (3.3)
+# Docker tasvirlar ro'yxatini ko'rish va boshqarish uchun buyruqlar:
+
+# 4. Barcha mavjud tasvirlarni ko'rish
+# $ docker images
+
+# 5. Tasvir haqida to'liq ma'lumot ko'rish (rasm ID bo'yicha)
+# $ docker inspect IMAGE_ID
+
+# 6. Tasvirlarni filtrlash
+# $ docker images --filter "dangling=true"  # Faqat orphand tasvirlarni ko'rsatadi.
+
+# 7. Tasvirlarni qidirish (Docker Hub dan):
+# $ docker search nginx
+
+# Bo'lim 4: Docker Tasvirini O'chirish (3.4)
+# Tasvirlarni o'chirish bo'yicha misollar:
+
+# 8. Tasvirni o'chirish
+# $ docker rmi IMAGE_ID
+
+# 9. Faqat foydalanilmayotgan tasvirlarni o'chirish
+# $ docker image prune
+
+# 10. Foydalanilmayotgan barcha tasvirlar va konteynerlarni o'chirish
+# $ docker system prune -a
+
+# Bo'lim 5: Dockerfile dan Tasvir Yaratish
+# Quyida Dockerfile orqali yangi tasvirni qanday yaratish haqida misol.
+
+# 11. Dockerfile yordamida tasvir yaratish
+# $ docker build -t my-custom-image:1.0 .
+
+# 12. Yaratilgan tasvirni ko'rish
+# $ docker images | grep my-custom-image
+
+# Bo'lim 6: Tasvirga Qo'shimcha Buyruqlar Qo'shish
+# Yaratilgan tasvir ichida Python o'rnatish:
+RUN apt-get install -y python3
+RUN echo "Python o'rnatildi."
+
+# Bo'lim 7: Tasvirdan Foydalangan Holda Konteyner Ishga Tushirish
+# Tasvirdan foydalanib konteyner ishga tushirish:
+# $ docker run -it my-custom-image:1.0 /bin/bash
+
+# Tasvirni test qilish uchun asosiy so'zlarni chiqish:
+CMD echo "Tasvir muvaffaqiyatli yaratildi!"
+
+# Qo'shimcha Misollar:
+# 13. Tasvirdan boshqa versiyani yaratish uchun:
+# $ docker tag my-custom-image:1.0 my-custom-image:latest
+# $ docker push my-custom-image:latest
+
+# 14. Rasmni tarqatish uchun Docker Hub ga yuklash:
+# $ docker login
+# $ docker push my-custom-image:1.0
+
+# 15. Foydalanilayotgan tasvirlarni ko'rish:
+# $ docker ps --filter ancestor=my-custom-image:1.0
+
+# 16. Foydalanilayotgan konteynerlarni ko'rish:
+# $ docker ps --filter ancestor=my-custom-image:1.0
+
+# 17. Foydalanilayotgan konteynerlarni o'chirish:
+# $ docker rm $(docker ps --filter ancestor=my-custom-image:1.0 -q)
+
+# 18. Tasvirdan foydalanib konteyner ishga tushirish:
+# $ docker run -it my-custom-image:1.0 /bin/bash
+'''
+Topshiriqlar
+Docker tasviri ichida Python skript ishlating.
+Docker Hub'dan tasvir yuklang va konteyner yarating.
+docker images yordamida tasvirlar ro‘yxatini ko‘ring.
+Docker tasvirini o‘chirishni amalda bajaring.
+Docker tasviri ichida yangi dastur o‘rnating.
+Docker tasviridan foydalanib RESTful API serverini ishga tushuring.
+O‘zingizning Docker tasviringizni yarating va Docker Hub'ga yuklang.
+docker pull yordamida tasvirni yangilang.
+Bir tasvirdan bir nechta konteyner yarating va ularni boshqaring.
+Barcha tasvirlarni o‘chiring va boshidan boshlang.
+Docker tasvirini ma‘lumotlar bazasi bilan birlashtiring.
+Docker tasvirini o‘zgartiring va farqlarni tahlil qiling.
+
+'''

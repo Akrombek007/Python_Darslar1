@@ -1,0 +1,165 @@
+# Docker Registry va Tasvirlarni Ulashish Qo'llanmasi
+# Docker Hub'ga tasvirlarni yuklash, mahalliy va masofaviy Docker Registry'lar bilan ishlash
+# Ushbu Dockerfile Windows uchun mo'ljallangan.
+
+# 1. Docker Tasvirlarini Docker Hub'ga Yuklash (docker push)
+
+# Docker tasvirini yaratib, Docker Hub'ga qanday qilib yuklashni ko'rib chiqamiz:
+# 1. Docker tasvirini yaratish
+# 2. Docker tasvirini Docker Hub'ga yuklash
+
+# Birinchi bosqich: Dockerfile yozish
+# Dockerfile yaratib, unga asosiy ishni belgilaymiz.
+
+# Dockerfile - Faylga asosiy image ni olish
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Kerakli paketlarni o'rnatish
+RUN powershell -Command Install-WindowsFeature Web-Server
+
+# Boshqa amallarni bajarish (masalan, web serverni sozlash)
+RUN powershell -Command New-Item -Path C:\inetpub\wwwroot\test.txt -ItemType File
+
+# Docker tasvirini yaratish
+# docker build -t my-web-server:v1 .
+# Bu yerda "my-web-server" nomi va "v1" versiyasi belgilangan.
+
+# Endi, tasvirni Docker Hub'ga push qilish uchun quyidagi amallarni bajarish kerak:
+# 1. Docker Hub'ga kirish: docker login
+# 2. Docker tasvirini Docker Hub'ga push qilish: docker push myusername/my-web-server:v1
+
+# 2. Docker Registry'ni Sozlash (Mahalliy va Masofaviy)
+
+# Docker Registry - bu Docker tasvirlarini saqlash uchun ishlatiladigan serverdir.
+# Mahalliy registry yaratish uchun quyidagi amallarni bajarish mumkin:
+# 1. Mahalliy Docker Registry ishga tushirish
+
+# Mahalliy Docker Registry yaratish
+# docker run -d -p 5000:5000 --name registry registry:2
+# Bu komanda mahalliy registry serverini ishga tushiradi va 5000 portini ochadi.
+
+# Tasvirni mahalliy Docker Registry'ga push qilish:
+# 1. Docker tasvirini yaratish
+# docker build -t my-local-image .
+# 2. Docker tasvirini mahalliy registry'ga push qilish
+# docker tag my-local-image localhost:5000/my-local-image
+# docker push localhost:5000/my-local-image
+
+# 3. Maxsus Docker Registry bilan ishlash
+
+# Maxsus registry sozlash uchun, biz Docker konfiguratsiya faylini yaratishimiz va ulanishni sozlashimiz kerak.
+# Docker Hub yoki o'zingizning maxsus registry serveringizni ishlatishingiz mumkin.
+
+# Maxsus Docker Registry uchun misol:
+# 1. Docker registry yaratish (masalan, AWS ECR yoki boshqa xizmatda)
+# 2. Docker registry'ga ulanish va tasvirni push qilish
+
+# AWS ECR bilan ishlash:
+# AWS ECR bilan ishlash uchun quyidagi amallarni bajarish mumkin:
+# 1. AWS CLI o'rnatish va konfiguratsiya qilish
+# aws configure
+# 2. Docker'ni AWS ECR bilan integratsiya qilish:
+# aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
+# 3. Docker tasvirini AWS ECR'ga push qilish:
+# docker tag my-local-image:latest <aws_account_id>.dkr.ecr.<region>.amazonaws.com/my-repo:latest
+# docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/my-repo:latest
+
+# Yana bir misol, Docker tasvirlarini o'z serveringizda saqlash:
+# 1. Docker registry serverini o'rnatish va sozlash
+# docker run -d -p 5000:5000 --name registry registry:2
+# 2. Docker tasvirini serverga push qilish
+# docker tag my-image localhost:5000/my-image
+# docker push localhost:5000/my-image
+
+# 3. Docker Tasvirlarini o'chirish (docker rmi)
+
+# Docker tasvirlarini o'chirish uchun:
+# docker rmi my-web-server:v1
+# Yoki to'liq tasvirni o'chirish:
+# docker rmi -f my-local-image
+
+# 4. Docker Tasvirlari Tarixi (docker history)
+
+# Docker tasvirining tarixini ko'rish uchun:
+# docker history my-web-server:v1
+
+# 5. Docker Registry bilan ishlashda foydalanuvchi va parol sozlash
+
+# Docker registry'ni o'zgartirish va foydalanuvchi uchun autentifikatsiya sozlash:
+# docker login --username myusername --password mypassword myregistry.example.com
+#  (Foydalanuvchi nomi va parolni kiriting)
+
+# Docker tasvirini mahalliy registry'ga push qilish uchun:
+# docker tag my-image myregistry.example.com/my-image
+# docker push myregistry.example.com/my-image
+
+# 6. Docker Tasvirlarini Tarqatish
+
+# Docker tasvirlarini bir necha serverga tarqatish uchun:
+# docker save my-image -o my-image.tar
+# docker load -i my-image.tar
+
+# 7. Docker Tasvirini Docker Hub'ga Avtomatik Push Qilish (CI/CD)
+
+# CI/CD tizimi yordamida Docker tasvirlarini avtomatik push qilish:
+# - GitLab CI, GitHub Actions, Jenkins orqali Docker tasvirlarini avtomatik push qilish
+
+# Misol: GitHub Actions yordamida Docker tasvirini yaratish va push qilish
+
+# .github/workflows/docker.yml
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-web-server:latest
+
+# 8. Docker Tasvirlarini Repozitoriyalar Bilan Boshqarish
+
+# Docker tasvirlarini ko'plab repozitoriyalarda boshqarish:
+# docker push myusername/my-web-server:v2
+# docker push myusername/my-web-server:v1
+
+# Docker tasvirini bir nechta tag bilan push qilish:
+# docker tag my-image myusername/my-image:v1
+# docker tag my-image myusername/my-image:v2
+# docker push myusername/my-image:v1
+# docker push myusername/my-image:v2
+
+# 9. Docker Tasvirini Yangi Versiya Bilan Yaratish
+
+# Yangi versiya yaratish va push qilish:
+# docker tag my-image myusername/my-image:v2
+# docker push myusername/my-image:v2
+
+# 10. Docker Tasvirlari Vaqtinchalik Saqlash (docker save va docker load)
+
+# Docker tasvirini vaqtincha saqlash uchun:
+# docker save my-image -o my-image.tar
+# docker load -i my-image.tar
+Izohlar:
+docker push: Docker tasvirlarini Docker Hub yoki boshqa registry'ga push qilish uchun ishlatiladi.
+docker run -d -p 5000:5000: Mahalliy Docker registry serverini ishga tushirish.
+docker tag: Docker tasviriga yangi tag berish va uni boshqa registry'ga push qilish.
+docker save va docker load: Docker tasvirini saqlash va keyinchalik uni yuklash.

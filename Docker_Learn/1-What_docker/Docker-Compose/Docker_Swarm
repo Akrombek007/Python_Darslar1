@@ -1,0 +1,134 @@
+# 1. Dockerfile boshlanishi
+# Docker Swarm bilan ishlash uchun Docker versiyasini o'rnatish
+# Quyidagi kodni Dockerfile faylida ishlatamiz
+# O'rtacha tizimni ishga tushirish va o'zingizning Docker Swarm konfiguratsiyasini sozlash
+
+# 1.1. Dockerning rasman o'rnatilgan tasvirini olish
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+
+# 1.2. Docker va PowerShell yordamida kerakli asboblar o'rnatilishi
+RUN powershell -Command \
+    Invoke-WebRequest -Uri https://download.docker.com/win/static/stable/x86_64/docker-20.10.5.zip -OutFile docker.zip; \
+    Expand-Archive docker.zip -DestinationPath C:\docker; \
+    Remove-Item -Force docker.zip; \
+    [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\docker", [EnvironmentVariableTarget]::Machine)
+
+# 1.3. Docker Swarm va orkestratsiya uchun kerakli konfiguratsiyalarni sozlash
+# Docker Swarm yordamida klasterni yaratish va boshqarish uchun kerakli ishlarni bajarish
+RUN docker --version
+
+# 2. Docker Swarmni ishga tushirish va konfiguratsiya qilish
+
+# 2.1. Swarm klasterini yaratish
+RUN docker swarm init --advertise-addr 192.168.1.100
+# Bu erda 192.168.1.100 sizning tizimingizdagi IP manzilingizni ko'rsatadi
+
+# 2.2. Swarm klasteriga yangi node qo'shish
+# Join tokenni olish uchun:
+# docker swarm join-token worker
+
+RUN docker swarm join --token SWMTKN-1-4nx6jz... --advertise-addr 192.168.1.101 192.168.1.100:2377
+
+# 3. Swarm klasteridagi xizmatlarni boshqarish
+
+# 3.1. Servislarni yaratish va ishga tushurish
+RUN docker service create --name webserver -p 80:80 nginx
+
+# 3.2. Swarmda xizmatlarni ko'rish
+RUN docker service ls
+
+# 3.3. Xizmatni yangilash
+RUN docker service update --image nginx:latest webserver
+
+# 3.4. Xizmatni o'chirish
+RUN docker service rm webserver
+
+# 4. Stack'lar bilan ishlash
+
+# 4.1. Stack'ni yaratish (Docker Compose fayli bilan)
+# stack.yml faylini yaratish:
+# version: "3"
+# services:
+#   web:
+#     image: nginx
+#     ports:
+#       - "80:80"
+
+# 4.2. Stack'ni ishga tushurish
+RUN docker stack deploy -c stack.yml mystack
+
+# 4.3. Stack'ni to'xtatish
+RUN docker stack rm mystack
+
+# 5. Docker Swarm Monitoring va Qo'shimcha Fayllar
+# Monitoring va nazorat qilish uchun Swarmning loglari va tizim statusini ko'rish
+RUN docker node ls
+RUN docker service ps webserver
+
+# 5.1. Swarm loglarini tekshirish
+RUN docker service logs webserver
+
+# 5.2. Docker stack statusni ko'rish
+RUN docker stack ps mystack
+
+# 6. Swarm klasterini to'liq qayta ishga tushirish
+RUN docker swarm leave --force
+
+# 7. Docker Compose va Swarm o'rtasidagi farqlar
+# 7.1. Docker Compose bilan bog'liq xizmatlar
+RUN docker-compose up -d
+
+# 7.2. Docker Compose va Swarmni solishtirish
+# Compose oddiy holatda, Swarm esa klasterlarda va orkestratsiyada ishlatiladi
+# Swarm klasterlari bir nechta nodalarga tarqatiladi va bu kengaytirilgan tizimlarni boshqarishga imkon beradi
+
+# 8. Docker Swarm tizimini to'liq qayta sozlash
+# Agar kerak bo'lsa, to'liq klasterni tiklash va uni qayta sozlash mumkin:
+RUN docker swarm init --force-new-cluster
+
+# 9. PyQt5 va Docker bilan ishlash
+# Docker Swarmni o'rnatganingizdan so'ng, PyQt5 dasturlari uchun Docker konteynerlarini ishga tushirish ham mumkin
+
+# 10. Docker Swarm orqali yuqori darajada monitoring va boshqaruv
+RUN docker node update --availability drain NODE_ID
+RUN docker node update --availability active NODE_ID
+
+# 11. Docker Swarm klasterini yuqori darajali tuzish va serverlar o'rtasida replikatsiyani boshqarish
+RUN docker service scale webserver=3
+
+# 12. Docker Swarm konfiguratsiyasi: Load balancing, Replikatsiya, va failover
+RUN docker service create --name mywebapp --replicas 3 -p 8080:80 nginx
+
+# 13. Docker Swarm yordamida mikroservislar arxitekturasini yaratish
+RUN docker service create --name frontend -p 80:80 nginx
+RUN docker service create --name backend -p 8080:8080 node:14
+
+# 14. Docker Swarmda foydalanuvchilar va ruxsatlar boshqaruvi
+RUN docker swarm join-token manager
+RUN docker swarm leave
+
+# 15. Docker Stack yordamida ko'p xizmatni boshqarish
+RUN docker stack deploy -c stack.yml my_stack
+
+# 16. Docker Swarmda autentifikatsiya va xavfsizlikni ta'minlash
+RUN docker swarm update --cert-expiry 72h
+
+# 17. Docker Swarm va Kubernetes taqqoslash
+# Kubernetes kengroq va yirik tizimlarni boshqarishda qo'llaniladi, Swarm esa kichik va o'rta darajadagi tizimlar uchun
+RUN docker swarm leave --force
+
+# 18. Docker Swarm xususiyatlarini tizimga qo'llash
+RUN docker service update --replicas 3 --image nginx:latest my_service
+
+# 19. Docker Swarmda xatoliklarni tahlil qilish
+RUN docker service logs my_service
+
+# 20. Docker Swarmning avtomatik tiklanishi va failover mexanizmi
+RUN docker service update --force my_service
+
+# Dockerfile tugadi
+Izohlar:
+Dockerfile'da ishlatilgan RUN buyruqlari ko'proq Docker Swarm va orkestratsiya bilan bog'liq amallarni bajaradi.
+Har bir qadam izohlanib, Docker Swarmning turli xususiyatlarini ko'rsatadi, masalan: Swarm klasterini yaratish, xizmatlarni boshqarish, Stacklarni sozlash va boshqalar.
+Dockerfile orqali xizmatlarni boshqarish, monitoring qilish va Docker Swarmda klasterni konfiguratsiya qilish ko'rsatilgan.
+Har bir amalda qaydlar va zarur bo'lgan komandalar bilan tuzilgan misollarni taqdim etdim.

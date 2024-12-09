@@ -1,0 +1,118 @@
+# Docker Tasvirlarini Optimallashtirish Usullari
+# Layerlarni minimallashtirish: Docker tasvirining o‘lchamini kamaytirish uchun qatlamlarni optimallashtirish kerak.
+# Keraksiz fayllarni olib tashlash: Docker tasvirida keraksiz fayllar, keshlar va vaqtinchalik fayllarni olib tashlash kerak.
+# Foydalanilmagan paketlarni olib tashlash: Keraksiz kutubxona yoki paketlar Docker tasvirida joy egallaydi, ularni o‘chirish zarur.
+# Alifbo tartibida komanda yozish: Dockerfile ichida buyruqlarni alifbo tartibida yozish qatlamlar sonini kamaytirishga yordam beradi.
+# Boshidan minimalist tasvirdan foydalanish
+FROM python:3.8-slim
+
+# Ishchi katalogni yaratish
+WORKDIR /app
+
+# Talab qilinadigan paketlar uchun faylni ko'chirib olish
+COPY requirements.txt .
+
+# Keraksiz keshlarni o'chirib, paketlarni o'rnatish
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dastur fayllarini ko'chirib olish
+COPY . .
+
+# Dasturni ishga tushirish
+CMD ["python", "app.py"]
+
+Izohlar:
+
+FROM python:3.8-slim: Bu yerda minimal python tasviri ishlatilmoqda. -slim versiyasi katta tasvirlarga nisbatan yengilroq.
+COPY requirements.txt .: Paketlarni o‘rnatishdan avval requirements.txt faylini ko‘chirib olish.
+--no-cache-dir: pip o‘rnatish keshini o‘chirish, bu tasvirni yengilroq qiladi.
+apt-get purge -y --auto-remove: Keraksiz paketlarni olib tashlash va tizimni yengillashtirish.
+rm -rf /var/lib/apt/lists/*: Paketlar o‘rnatilgandan so‘ng keshni o‘chirish.
+Docker Konteynerlarining Performansini Oshirish
+Konteynerlar uchun resurslarni ajratish: Konteynerning CPU va xotira resurslarini cheklash, resurslar taqsimotini boshqarish.
+Konteynerning yashash muddatini optimallashtirish: Ortiqcha konteynerlarni o‘chirish va faqat kerakli konteynerlarni ishga tushirish.
+Docker konteynerlarining skalabilitesi: Docker konteynerlarining ko‘paytirilishi va oraliqlarda bir necha konteynerni boshqarish.
+# Docker konteynerining resurslarini cheklash
+FROM node:14
+
+# Xotira va CPU ni cheklash: Docker run parametrlari orqali
+# docker run -m 512m --cpus="1.0" --name my_container my_image
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 8080
+CMD ["node", "app.js"]
+
+Izohlar:
+
+-m 512m: Konteynerga 512 MB xotira ajratiladi.
+--cpus="1.0": CPUning 1 yadroli resursini ajratish.
+EXPOSE 8080: 8080 portini ochish, bu konteynerda ishlayotgan ilova uchun kerak.
+Dockerda Eng Ko‘p Uchraydigan Muammolar va Ularni Hal Qilish
+Konteynerni ishga tushirishdagi xatoliklar:
+
+Muammo: "Cannot connect to Docker daemon" xatosi.
+Hal qilish: Docker xizmatini qayta ishga tushiring (sudo service docker restart).
+Docker tasvirining juda katta bo‘lishi:
+
+Muammo: Docker tasviri kerakli bo‘lganidan kattaroq bo‘lishi.
+Hal qilish: COPY . . komandasi faqat kerakli fayllarni ko‘chirishi kerak, masalan, .dockerignore faylidan foydalaning.
+
+Docker konteynerlarini avtomatik o‘chirish:
+Muammo: Ortiqcha konteynerlar tizimda joy egallaydi.
+Hal qilish: docker prune buyruqlari orqali konteynerlarni tozalang.
+bash
+Копировать код
+# Hammasini tozalash
+docker system prune -a
+
+# Faqat konteynerlarni tozalash
+docker container prune
+
+Tizimdagi resurslar etishmovchiligi:
+Muammo: Dockerda resurs yetishmovchiligi (CPU, xotira) muammolari.
+Hal qilish: Docker konteynerining resurslarini to‘g‘ri ajratish uchun docker run parametrlarini ishlating.
+
+docker run --memory="1g" --cpus="1.0" my_image
+
+Konteynerda fayl yo‘llari bilan ishlash:
+Muammo: Konteynerda fayllar noto‘g‘ri joylashgan.
+Hal qilish: Fayllar va kataloglar uchun to‘g‘ri yo‘lni ko‘rsating.
+
+# Fayllarni to'g'ri joylash
+COPY ./local-folder /app/remote-folder
+
+Yakuniy file
+# Minimal tasvirni tanlash
+FROM python:3.8-slim
+
+# Ishchi katalogni yaratish
+WORKDIR /app
+
+# Talab qilinadigan paketlar uchun faylni ko‘chirib olish
+COPY requirements.txt .
+
+# Keraksiz keshlarni o'chirib, paketlarni o'rnatish
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dastur fayllarini ko'chirib olish
+COPY . .
+
+# Konteyner resurslarini cheklash
+CMD ["python", "app.py"]
